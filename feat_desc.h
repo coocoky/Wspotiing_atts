@@ -19,5 +19,5 @@ typedef struct
     float const *descrs ;
 }denseSift;
 
-denseSift get_vl_phow(featParams*,Mat);
+denseSift get_vl_phow(featParams, vector<float>, int , int);
 denseSift get_vl__dsift(float **data,int scale,int step);

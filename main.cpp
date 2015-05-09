@@ -1,10 +1,11 @@
 //#include "mainwindow.h"
 //#include <QApplication>
 #include <iostream>
+#include<stdio.h>
 #include <opencv2/opencv.hpp>
 #include <opencv2/highgui/highgui.hpp>
-#include<feature_option.h>
-#include<feat_desc.h>
+#include"feature_option.h"
+#include"feat_desc.h"
 extern "C" {
   #include <vl/generic.h>
 #include<vl/dsift.h>
@@ -15,6 +16,7 @@ using namespace cv;
 
 int main(int argc, char *argv[])
 {
+    VL_PRINT ("Hello world!") ;
     if( argc != 2)
         {
          cout <<" Usage: display_image ImageToLoadAndDisplay" << endl;
@@ -33,23 +35,34 @@ int main(int argc, char *argv[])
         }
         cvtColor(image, grayIm, cv::COLOR_BGR2GRAY);
 
-        featParams *param;
-        pathParam *resPath;
-        prepare_opts(param,resPath);
 
-        /* calling dsift function of vl_feat library*/
 
-        denseSift feat = get_vl_phow(param,grayIm);
+        vector<float> grayImg;
+        for (int i = 0; i < grayIm.rows; ++i)
+          for (int j = 0; j < grayIm.cols; ++j)
+            grayImg.push_back(grayIm.at<unsigned char>(i, j));
+
+
+        featParams param;
+        //pathParam *resPath;
+        param.featDim = 2*(param.PCADIM+2)*param.numSpatialX*param.numSpatialY*param.G;
+        //prepare_opts(param,resPath);
+        printf("aqui");
+
+//        /* calling dsift function of vl_feat library*/
+
+        denseSift feat = get_vl_phow(param,grayImg,grayIm.rows,grayIm.cols);
+
 
 
 
         /* reading PCA file from matlab*/
-        //PCA = readPCA(resPath);
+        //PCA PCAModel = readPCA(resPath);
 
         /* reading GMM file from Matlab*/
         //GMM = readGMM(resPath);
 
-        /* calling vl_fisher function of vl_feat library to encode the  */
+        /* calling vl_fisher function of vl_feat library to encode the SIFT vectors */
         //float const *fv = get_fisher_encode(feat,GMM,PCA);
 
         /* read embedding matrix and CCA matrix */

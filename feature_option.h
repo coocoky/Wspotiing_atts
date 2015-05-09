@@ -4,6 +4,7 @@
 #endif // FEATURE_OPTION_H
 #include <opencv2/opencv.hpp>
 #include <opencv2/highgui/highgui.hpp>
+
 typedef struct{
     const int  SIFTDIM = 128;
     const int useXY = 0;
@@ -23,4 +24,4 @@ typedef struct{
 
 }pathParam;
 
-void prepare_opts(featParams*,pathParam*);
+
