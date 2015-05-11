@@ -53,7 +53,7 @@ int main(int argc, char *argv[])
 
         denseSift feat = get_vl_phow(param,grayImg,grayIm.rows,grayIm.cols);
 
-
+//normalize sift is due
 
 
         /* reading PCA file from matlab*/
@@ -63,7 +63,7 @@ int main(int argc, char *argv[])
         //GMM = readGMM(resPath);
 
         /* calling vl_fisher function of vl_feat library to encode the SIFT vectors */
-        //float const *fv = get_fisher_encode(feat,GMM,PCA);
+        float const *fv = get_fisher_encode(feat,GMM,PCA);
 
         /* read embedding matrix and CCA matrix */
 

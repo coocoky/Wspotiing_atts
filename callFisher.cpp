@@ -45,7 +45,7 @@ denseSift get_vl_dsift(float *data,int scale,int step,int imrow,int imcol)
 
 denseSift  get_vl_phow(featParams param, vector<float> grayIm, int imrow, int imcol)
 {
-    denseSift featGray[param.numScale];
+    denseSift featGray,featGrayAll;
     dsiftparam dsiftopts;
 
     float* img_vec_smooth = (float*)malloc(imrow*imcol*sizeof(float));
@@ -57,19 +57,26 @@ denseSift  get_vl_phow(featParams param, vector<float> grayIm, int imrow, int im
 
             /* call vl_dsift here */
 
-            featGray[i-1]=get_vl_dsift(img_vec_smooth,param.scale[i-1],param.step,imrow,imcol);
+            featGray=get_vl_dsift(img_vec_smooth,param.scale[i-1],param.step,imrow,imcol);
 
-            // check the dimensionality
+            start = featGrayAll.numFrames+1;
+            end = start+featGray.numFrames-1;
+            l=0;
+            for (int k=start;k<end;k++)
+            {
+                featGrayAll.descrs[k] =featGray.descrs[l];
+                featGrayAll.frames[k] = featGray.frames[l];
 
-
-
-
+                l++;
+            }
+            featGrayAll.numFrames=featGrayAll.numFrames+featGray.numFrames;
+            featGrayAll.descrSize = featGray.descrSize;
 
     }
 
 
 
-
+return featGrayAll;
 
 
 
