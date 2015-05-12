@@ -16,7 +16,7 @@ typedef struct
     int numFrames ;
     int descrSize ;
     VlDsiftKeypoint const *frames ;
-    float  *descrs ;
+    const float  *descrs ;
 }denseSift;
 
 denseSift get_vl_phow(featParams, vector<float>, int , int);

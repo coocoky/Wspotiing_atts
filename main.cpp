@@ -6,6 +6,7 @@
 #include <opencv2/highgui/highgui.hpp>
 #include"feature_option.h"
 #include"feat_desc.h"
+#include"io.h"
 extern "C" {
   #include <vl/generic.h>
 #include<vl/dsift.h>
@@ -44,7 +45,7 @@ int main(int argc, char *argv[])
 
 
         featParams param;
-        //pathParam *resPath;
+        pathParam resPath;
         param.featDim = 2*(param.PCADIM+2)*param.numSpatialX*param.numSpatialY*param.G;
         //prepare_opts(param,resPath);
         printf("aqui");
@@ -55,23 +56,48 @@ int main(int argc, char *argv[])
 
 //normalize sift is due
 
-
+        resPath.lexPath ="lexicon.bin";
+        resPath.pcaPath ="PCA.bin";
+        resPath.gmmPath ="GMM.bin";
+        resPath.attsPath ="atts.bin";
+        resPath.ccaPath="CCA.bin"
         /* reading PCA file from matlab*/
-        //PCA PCAModel = readPCA(resPath);
+        pcaTemp PCAModel = readPCA(resPath.pcaPath);
+
+        printf("PCA attributes \n%d %d",PCAModel.dim,PCAModel.num);
 
         /* reading GMM file from Matlab*/
-        //GMM = readGMM(resPath);
+        GMMTemp GMM = readGMM(resPath.gmmPath);
 
         /* calling vl_fisher function of vl_feat library to encode the SIFT vectors */
-        float const *fv = get_fisher_encode(feat,GMM,PCA);
+        float const *fv = get_fisher_encode(feat,GMM,PCAModel);
+        Mat FV = Mat::zeros(1,param.featDim,DataType<float>::type);
+        FV.data = fv;
 
         /* read embedding matrix and CCA matrix */
 
-        /* multiply fv,embedding matrix,cca matrix */
+       float  *W =readAttributeEmb(resPath.attspath);
+        Mat embW = Mat::zeros(param.featDim,param.numAtts,DataType<float>::type);
+        embW.data =W;
+
+        float *cca = readCCA(resPath.ccaPath);
+        Mat CCA = Mat::zeros(param.featDim,param.numAtts,DataType<float>::type);
+
+        CCA.data = cca;
+
+
+        /* multiply fv,embedding matrix,cca matrix like atts = (fv*W')*CCA' */
+        Mat atts = (FV * W) * CCA;
+        /* take l2 norm */
 
         /* read a lexicon file precomputed */
+        lex = readLexicon(resPath.lexPath);
 
-        /* take a dot product */
+        /* take a dot product in matlab lex*atts'*/
+
+        Mat S = atts * lex;
+
+        /* sort and get the result */
 
 
 

@@ -15,11 +15,13 @@ TEMPLATE = app
 SOURCES += main.cpp\
         mainwindow.cpp \
     prep_options.cpp \
-    callFisher.cpp
+    callFisher.cpp \
+    io.cpp
 
 HEADERS  += mainwindow.h \
     feature_option.h \
-    feat_desc.h
+    feat_desc.h \
+    io.h
 
 FORMS    += mainwindow.ui
 

@@ -6,6 +6,7 @@
 #include"feat_desc.h"
 extern "C" {
   #include <vl/generic.h>
+#include<vl/imopv.h>
 }
 using namespace std;
 using namespace cv;
@@ -47,13 +48,14 @@ denseSift  get_vl_phow(featParams param, vector<float> grayIm, int imrow, int im
 {
     denseSift featGray,featGrayAll;
     dsiftparam dsiftopts;
+    int start,end,l;
 
     float* img_vec_smooth = (float*)malloc(imrow*imcol*sizeof(float));
 
     for (int i=1; i<param.numScale; i++)
     {
         float sigma = param.scale[i-1] / dsiftopts.magnif ;
-            vl_imsmooth_f(img_vec_smooth,imcol,grayIm,imcol,imrow,imcol, sigm,sigma) ; //can't figure out how to call this in C
+            vl_imsmooth_f(img_vec_smooth,imcol,&grayIm[0],imcol,imrow,imcol, sigma,sigma) ; //can't figure out how to call this in C
 
             /* call vl_dsift here */
 
@@ -62,13 +64,13 @@ denseSift  get_vl_phow(featParams param, vector<float> grayIm, int imrow, int im
             start = featGrayAll.numFrames+1;
             end = start+featGray.numFrames-1;
             l=0;
-            for (int k=start;k<end;k++)
+            /*for (int k=start;k<end;k++)
             {
                 featGrayAll.descrs[k] =featGray.descrs[l];
                 featGrayAll.frames[k] = featGray.frames[l];
 
                 l++;
-            }
+            }*/
             featGrayAll.numFrames=featGrayAll.numFrames+featGray.numFrames;
             featGrayAll.descrSize = featGray.descrSize;
 

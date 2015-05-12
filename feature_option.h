@@ -21,6 +21,11 @@ typedef struct{
 typedef struct{
     char *modelPath;
     char *lexPath;
+    char *lexPath;
+    char *pcaPath;// ="PCA.bin";
+    char *gmmPath;// ="GMM.bin";
+    char *attsPath;// ="atts.bin";
+    char *ccaPath;//"CCA.bin"
 
 }pathParam;
 
