@@ -19,6 +19,16 @@ typedef struct{
 
 }GMMTemp;
 
+typedef struct{
+    int K;
+    float *Wx;
+    float *wy;
+    float *matts;
+    float *mphocs;
+}CCATemp;
+
 pcaTemp readPCA(char*);
 
 GMMTemp readGMM(char*);
+CCATemp readCCA(char *);
+float * readAttributeEmb(char *);

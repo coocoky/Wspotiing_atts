@@ -59,8 +59,8 @@ int main(int argc, char *argv[])
         resPath.lexPath ="lexicon.bin";
         resPath.pcaPath ="PCA.bin";
         resPath.gmmPath ="GMM.bin";
-        resPath.attsPath ="atts.bin";
-        resPath.ccaPath="CCA.bin"
+        resPath.attsPath ="attModels.bin";
+        resPath.ccaPath="CCA.bin";
         /* reading PCA file from matlab*/
         pcaTemp PCAModel = readPCA(resPath.pcaPath);
 
@@ -68,34 +68,52 @@ int main(int argc, char *argv[])
 
         /* reading GMM file from Matlab*/
         GMMTemp GMM = readGMM(resPath.gmmPath);
+        printf("\nGMM attributes \n%d %d",GMM.D,GMM.G);
+        FILE *ftest;
+        ftest = fopen("test.txt","w");
+       /* for (int iter=0;iter<GMM.G;iter++)
+        fprintf(ftest,"%f\n",GMM.we[iter]);
+        fclose(ftest);*/
+
+      /*  for(int iter =0;iter<GMM.G;iter++)
+        {
+            for(int iter1=0;iter1<GMM.D;iter1++)
+            {
+                fprintf(ftest,"%f ",GMM.mu[iter*GMM.D+iter1]);
+            }
+        fprintf(ftest,"\n");
+        }
+
+        fclose(ftest);*/
+
 
         /* calling vl_fisher function of vl_feat library to encode the SIFT vectors */
-        float const *fv = get_fisher_encode(feat,GMM,PCAModel);
-        Mat FV = Mat::zeros(1,param.featDim,DataType<float>::type);
-        FV.data = fv;
+//        float const *fv = get_fisher_encode(feat,GMM,PCAModel);
+//        Mat FV = Mat::zeros(1,param.featDim,DataType<float>::type);
+//        FV.data = fv;
 
-        /* read embedding matrix and CCA matrix */
+//         read embedding matrix and CCA matrix */
 
-       float  *W =readAttributeEmb(resPath.attspath);
-        Mat embW = Mat::zeros(param.featDim,param.numAtts,DataType<float>::type);
-        embW.data =W;
+       float  *W =readAttributeEmb(resPath.attsPath);
+        //Mat embW = Mat::zeros(param.featDim,param.numAtts,DataType<float>::type);
+        //embW.data =W;
 
-        float *cca = readCCA(resPath.ccaPath);
-        Mat CCA = Mat::zeros(param.featDim,param.numAtts,DataType<float>::type);
+        CCATemp cca = readCCA(resPath.ccaPath);
+        //Mat CCA = Mat::zeros(param.featDim,param.numAtts,DataType<float>::type);
 
-        CCA.data = cca;
+        //CCA.data = cca;
 
 
-        /* multiply fv,embedding matrix,cca matrix like atts = (fv*W')*CCA' */
-        Mat atts = (FV * W) * CCA;
-        /* take l2 norm */
+//        /* multiply fv,embedding matrix,cca matrix like atts = (fv*W')*CCA' */
+//        Mat atts = (FV * embW.t()) * CCA.t();
+//        /* take l2 norm */
 
-        /* read a lexicon file precomputed */
-        lex = readLexicon(resPath.lexPath);
+//        /* read a lexicon file precomputed */
+//        float *lex = readLexicon(resPath.lexPath);
 
-        /* take a dot product in matlab lex*atts'*/
+//        /* take a dot product in matlab lex*atts'*/
 
-        Mat S = atts * lex;
+//        Mat S = atts.t() * lex;
 
         /* sort and get the result */
 

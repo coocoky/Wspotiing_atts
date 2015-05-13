@@ -39,10 +39,10 @@ GMMTemp readGMM(char *fname)
     int success = fread(buffer, sizeof(float), GMM.G,fid);
     GMM.we = buffer;
      buffer = (float*)malloc(sizeof(float)*GMM.G*GMM.D);
-    sucess = fread(buffer, sizeof(float), GMM.G*GMM.D,fid);
+    success = fread(buffer, sizeof(float), GMM.G*GMM.D,fid);
     GMM.mu = buffer;
     buffer = (float*)malloc(sizeof(float)*GMM.G*GMM.D);
-    sucess = fread(buffer, sizeof(float), GMM.G*GMM.D,fid);
+    success = fread(buffer, sizeof(float), GMM.G*GMM.D,fid);
 
     GMM.sigma = buffer;
 
@@ -50,5 +50,47 @@ GMMTemp readGMM(char *fname)
     fclose(fid);
 
     return GMM;
+
+}
+
+float * readAttributeEmb(char *fname)
+{
+    float *emb;
+    int N,D;
+    FILE *fid = fopen(fname, "r");
+    fread(&N, sizeof(int),1 ,fid);
+
+    fread(&D, sizeof(int),1 ,fid);
+
+    emb = (float*)malloc(sizeof(float)*N*D);
+     fread(emb, sizeof(float), N*D,fid);
+    return emb;
+}
+
+ CCATemp readCCA(char *fname)
+{
+    CCATemp CCA;
+    float *buffer ;
+    int N,D;
+    FILE *fid = fopen(fname, "r");
+    fread(&N, sizeof(int),1 ,fid);
+
+    fread(&D, sizeof(int),1 ,fid);
+
+    buffer =(float*)malloc(sizeof(float)*N*D);
+
+    fread(buffer, sizeof(float), N*D,fid);
+
+    CCA.Wx =buffer;
+    fread(buffer, sizeof(float), N*D,fid);
+    CCA.wy =buffer;
+    buffer = (float*) malloc(sizeof(float)*N*1);
+    fread(buffer, sizeof(float), N*1,fid);
+    CCA.matts = buffer;
+    fread(buffer, sizeof(float), N*1,fid);
+    CCA.mphocs = buffer;
+    CCA.K =D;
+    return CCA;
+
 
 }
