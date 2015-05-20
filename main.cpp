@@ -5,8 +5,8 @@
 #include <opencv2/opencv.hpp>
 #include <opencv2/highgui/highgui.hpp>
 #include"feature_option.h"
-#include"feat_desc.h"
 #include"io.h"
+#include"feat_desc.h"
 extern "C" {
   #include <vl/generic.h>
 #include<vl/dsift.h>
@@ -88,7 +88,7 @@ int main(int argc, char *argv[])
 
 
         /* calling vl_fisher function of vl_feat library to encode the SIFT vectors */
-//        float const *fv = get_fisher_encode(feat,GMM,PCAModel);
+        float const *fv = get_vl_fisher_encode(feat,GMM,PCAModel);
 //        Mat FV = Mat::zeros(1,param.featDim,DataType<float>::type);
 //        FV.data = fv;
 

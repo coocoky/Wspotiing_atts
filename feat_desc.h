@@ -21,3 +21,4 @@ typedef struct
 
 denseSift get_vl_phow(featParams, vector<float>, int , int);
 denseSift get_vl__dsift(float **data,int scale,int step);
+float *get_vl_fisher_encode(denseSift,GMMTemp,pcaTemp);

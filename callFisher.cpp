@@ -3,10 +3,12 @@
 #include <opencv2/opencv.hpp>
 #include <opencv2/highgui/highgui.hpp>
 #include"feature_option.h"
+#include"io.h"
 #include"feat_desc.h"
 extern "C" {
   #include <vl/generic.h>
 #include<vl/imopv.h>
+#include<vl/fisher.h>
 }
 using namespace std;
 using namespace cv;
@@ -84,4 +86,18 @@ return featGrayAll;
 
         }
 
+float *get_vl_fisher_encode(denseSift feat,GMMTemp G,pcaTemp pca)
+{
+    //call factory function for vl_fisher_code
+    float *enc = (float*)vl_malloc(sizeof(float) * 2 * G.D * G.D);
 
+    vl_fisher_encode
+     (enc, VL_TYPE_FLOAT,
+     G.mu, G.D, G.G,
+     G.sigma,
+     G.we,
+     feat.descrs, feat.numFrames,
+     VL_FISHER_FLAG_IMPROVED
+     ) ;
+    return enc;
+}
