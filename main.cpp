@@ -43,6 +43,16 @@ int main(int argc, char *argv[])
           for (int j = 0; j < grayIm.cols; ++j)
             grayImg.push_back(grayIm.at<unsigned char>(i, j));
 
+//        FILE *ftest;
+//                ftest = fopen("test2.txt","w");
+//       int k=0;
+//        for (int i = 0; i < grayIm.rows; ++i)
+//        {
+//            fprintf(ftest,"\n");
+//          for (int j = 0; j < grayIm.cols; ++j)
+//              fprintf(ftest,"%f", grayImg[k++]);
+//        }
+//fclose(ftest);
 
         featParams param;
         pathParam resPath;
@@ -64,13 +74,13 @@ int main(int argc, char *argv[])
         /* reading PCA file from matlab*/
         pcaTemp PCAModel = readPCA(resPath.pcaPath);
 
-        printf("PCA attributes \n%d %d",PCAModel.dim,PCAModel.num);
+        printf("PCA attributes \n%d %d\n",PCAModel.dim,PCAModel.num);
 
         /* reading GMM file from Matlab*/
         GMMTemp GMM = readGMM(resPath.gmmPath);
         printf("\nGMM attributes \n%d %d",GMM.D,GMM.G);
-        FILE *ftest;
-        ftest = fopen("test.txt","w");
+        //FILE *ftest;
+       // ftest = fopen("test.txt","w");
        /* for (int iter=0;iter<GMM.G;iter++)
         fprintf(ftest,"%f\n",GMM.we[iter]);
         fclose(ftest);*/

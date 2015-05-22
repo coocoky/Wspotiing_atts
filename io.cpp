@@ -33,8 +33,10 @@ GMMTemp readGMM(char *fname)
     FILE *fid = fopen(fname, "r");
     fread(&a, sizeof(int),1 ,fid);
     GMM.G =a;
+    printf("%d\n",a);
     fread(&a, sizeof(int),1 ,fid);
     GMM.D =a;
+    printf("%d\n",a);
     float *buffer = (float*)malloc(sizeof(float)*GMM.G);
     int success = fread(buffer, sizeof(float), GMM.G,fid);
     GMM.we = buffer;

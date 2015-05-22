@@ -52,20 +52,38 @@ denseSift  get_vl_phow(featParams param, vector<float> grayIm, int imrow, int im
     dsiftparam dsiftopts;
     int start,end,l;
 
+    //test image
+
+//    for(int j=0;j<imrow;j++)
+//    {
+//        fprintf(ftest,"\n");
+//        for(int k=0;k<imcol;k++)
+//            fprintf(ftest,"%f ",grayIm);
+//    }
+
     float* img_vec_smooth = (float*)malloc(imrow*imcol*sizeof(float));
+    FILE *ftest = fopen("test.txt","w");
 
     for (int i=1; i<param.numScale; i++)
     {
         float sigma = param.scale[i-1] / dsiftopts.magnif ;
-            vl_imsmooth_f(img_vec_smooth,imcol,&grayIm[0],imcol,imrow,imcol, sigma,sigma) ; //can't figure out how to call this in C
+            vl_imsmooth_f(img_vec_smooth,imcol,grayIm.data(),imcol,imrow,imcol, sigma,sigma) ; //can't figure out how to call this in C
 
             /* call vl_dsift here */
 
             featGray=get_vl_dsift(img_vec_smooth,param.scale[i-1],param.step,imrow,imcol);
+            fprintf(ftest,"scale %d\n",i);
+            for(int j=0;j<featGray.numFrames;j++)
+            {
+                fprintf(ftest,"\n");
+                for(int k=0;k<featGray.descrSize;k++)
+                    fprintf(ftest,"%f ",featGray.descrs);
+            }
 
-            start = featGrayAll.numFrames+1;
-            end = start+featGray.numFrames-1;
-            l=0;
+
+            //start = featGrayAll.numFrames+1;
+            //end = start+featGray.numFrames-1;
+            //l=0;
             /*for (int k=start;k<end;k++)
             {
                 featGrayAll.descrs[k] =featGray.descrs[l];
@@ -73,10 +91,11 @@ denseSift  get_vl_phow(featParams param, vector<float> grayIm, int imrow, int im
 
                 l++;
             }*/
-            featGrayAll.numFrames=featGrayAll.numFrames+featGray.numFrames;
-            featGrayAll.descrSize = featGray.descrSize;
+            //featGrayAll.numFrames=featGrayAll.numFrames+featGray.numFrames;
+            //featGrayAll.descrSize = featGray.descrSize;
 
     }
+    fclose(ftest);
 
 
 
@@ -89,7 +108,21 @@ return featGrayAll;
 float *get_vl_fisher_encode(denseSift feat,GMMTemp G,pcaTemp pca)
 {
     //call factory function for vl_fisher_code
-    float *enc = (float*)vl_malloc(sizeof(float) * 2 * G.D * G.D);
+   int dim = 2*G.G * G.D;
+    float *enc = (float*)vl_malloc(sizeof(float) * 2 * G.G * G.D);
+    printf("%d",2 * G.G * G.D);
+
+//    % Project into PCA space
+//    if opts.useXY
+//    xy = descrs(opts.SIFTDIM+1:end,:);
+//    end
+//    descrs=bsxfun(@minus, descrs(1:opts.SIFTDIM,:), PCA.mean);
+//    descrs=PCA.eigvec'*descrs;
+//    if opts.useXY
+//    descrs = [descrs; xy];
+//    end
+   Mat pcaMean,pcaVec;
+
 
     vl_fisher_encode
      (enc, VL_TYPE_FLOAT,
@@ -99,5 +132,10 @@ float *get_vl_fisher_encode(denseSift feat,GMMTemp G,pcaTemp pca)
      feat.descrs, feat.numFrames,
      VL_FISHER_FLAG_IMPROVED
      ) ;
+    FILE *fw = fopen("test.txt","w");
+    for (int i=0;i<dim;i++)
+        fprintf(fw,"%f\n",enc[i]);
+
+
     return enc;
 }
