@@ -2,6 +2,11 @@
 #include<stdio.h>
 #include<malloc.h>
 
+Mat ConvertToMat(float *vec,int row, int col)
+{
+     Mat retmat = Mat(row,col,CV_32FC1,vec);
+     return retmat;
+}
 pcaTemp readPCA(char *fname)
 {
     pcaTemp PCA;
@@ -15,12 +20,14 @@ pcaTemp readPCA(char *fname)
     /* allocate space for eigvec and mean*/
     float *buffer = (float*)malloc(sizeof(float)*PCA.num*PCA.dim);
 
+
     int result = fread(buffer, sizeof(float), PCA.num*PCA.dim,fid);
-    PCA.eigvec = buffer;
+    PCA.eigvec=ConvertToMat(buffer,PCA.num,PCA.dim);
+    //PCA.eigvec = buffer;
     free(buffer);
     buffer = (float*)malloc(sizeof(float)*PCA.dim);
    result = fread(buffer, sizeof(float), PCA.dim,fid);
-    PCA.mean = buffer;//fread(fid, [D,1], '*single');
+    PCA.mean = ConvertToMat(buffer,1,PCA.dim);//fread(fid, [D,1], '*single');
     free(buffer);
     fclose(fid);
     return PCA;
@@ -33,21 +40,23 @@ GMMTemp readGMM(char *fname)
     FILE *fid = fopen(fname, "r");
     fread(&a, sizeof(int),1 ,fid);
     GMM.G =a;
-    printf("%d\n",a);
+    printf("\n inside  read GMM%d\n",a);
     fread(&a, sizeof(int),1 ,fid);
     GMM.D =a;
-    printf("%d\n",a);
+    printf("Inside Read GMM %d\n",a);
     float *buffer = (float*)malloc(sizeof(float)*GMM.G);
     int success = fread(buffer, sizeof(float), GMM.G,fid);
-    GMM.we = buffer;
+    GMM.we = ConvertToMat(buffer,1,GMM.G);
+    free(buffer);
      buffer = (float*)malloc(sizeof(float)*GMM.G*GMM.D);
     success = fread(buffer, sizeof(float), GMM.G*GMM.D,fid);
-    GMM.mu = buffer;
+    GMM.mu = ConvertToMat(buffer,GMM.G,GMM.D);
+    free(buffer);
     buffer = (float*)malloc(sizeof(float)*GMM.G*GMM.D);
     success = fread(buffer, sizeof(float), GMM.G*GMM.D,fid);
 
-    GMM.sigma = buffer;
-
+    GMM.sigma = ConvertToMat(buffer,GMM.G,GMM.D);
+    free(buffer);
 
     fclose(fid);
 
@@ -55,7 +64,7 @@ GMMTemp readGMM(char *fname)
 
 }
 
-float * readAttributeEmb(char *fname)
+Mat readAttributeEmb(char *fname)
 {
     float *emb;
     int N,D;
@@ -64,9 +73,14 @@ float * readAttributeEmb(char *fname)
 
     fread(&D, sizeof(int),1 ,fid);
 
+
     emb = (float*)malloc(sizeof(float)*N*D);
+
      fread(emb, sizeof(float), N*D,fid);
-    return emb;
+     //Mat embMat =Mat(N,D,CV_32FC1,emb);
+     Mat embMat =ConvertToMat(emb,N,D);
+     free(emb);
+    return embMat;
 }
 
  CCATemp readCCA(char *fname)
@@ -83,16 +97,23 @@ float * readAttributeEmb(char *fname)
 
     fread(buffer, sizeof(float), N*D,fid);
 
-    CCA.Wx =buffer;
+    CCA.Wx =ConvertToMat(buffer,N,D);
+    free(buffer);
+    buffer =(float*)malloc(sizeof(float)*N*D);
     fread(buffer, sizeof(float), N*D,fid);
-    CCA.wy =buffer;
+    CCA.wy =ConvertToMat(buffer,N,D);
+    free(buffer);
     buffer = (float*) malloc(sizeof(float)*N*1);
     fread(buffer, sizeof(float), N*1,fid);
-    CCA.matts = buffer;
+    CCA.matts = ConvertToMat(buffer,N,1);
+    free(buffer);
+    buffer = (float*) malloc(sizeof(float)*N*1);
     fread(buffer, sizeof(float), N*1,fid);
-    CCA.mphocs = buffer;
+    CCA.mphocs = ConvertToMat(buffer,N,1);
+    free(buffer);
     CCA.K =D;
     return CCA;
 
 
 }
+

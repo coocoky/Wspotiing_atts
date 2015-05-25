@@ -2,10 +2,12 @@
 #define IO_H
 
 #endif // IO_H
-
+#include <opencv2/opencv.hpp>
+#include <opencv2/highgui/highgui.hpp>
+using namespace cv;
 typedef struct{
-float *eigvec;
-float *mean;
+Mat eigvec;
+Mat mean;
 int num;
 int dim;
 }pcaTemp;
@@ -13,22 +15,23 @@ int dim;
 typedef struct{
     int G;
     int D;
-    float *we;
-    float *mu;
-    float *sigma;
+    Mat we;
+    Mat mu;
+    Mat sigma;
 
 }GMMTemp;
 
 typedef struct{
     int K;
-    float *Wx;
-    float *wy;
-    float *matts;
-    float *mphocs;
+    Mat Wx;
+    Mat wy;
+    Mat matts;
+    Mat mphocs;
 }CCATemp;
 
 pcaTemp readPCA(char*);
 
 GMMTemp readGMM(char*);
 CCATemp readCCA(char *);
-float * readAttributeEmb(char *);
+Mat readAttributeEmb(char *);
+Mat ConvertToMat(float*vec, int row, int col);

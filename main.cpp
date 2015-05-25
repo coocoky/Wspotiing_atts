@@ -5,7 +5,7 @@
 #include <opencv2/opencv.hpp>
 #include <opencv2/highgui/highgui.hpp>
 #include"feature_option.h"
-#include"io.h"
+//#include"io.h"
 #include"feat_desc.h"
 extern "C" {
   #include <vl/generic.h>
@@ -37,22 +37,26 @@ int main(int argc, char *argv[])
         cvtColor(image, grayIm, cv::COLOR_BGR2GRAY);
 
 
-       grayIm.
-        vector<float> grayImg;
+        int k=0;
+        float *grayImg=(float*)malloc(grayIm.rows*grayIm.cols*sizeof(float));
         for (int i = 0; i < grayIm.rows; ++i)
           for (int j = 0; j < grayIm.cols; ++j)
-            grayImg.push_back(grayIm.at<unsigned char>(i, j));
+            grayImg[k++]= grayIm.at<unsigned char>(i, j);
 
-//        FILE *ftest;
-//                ftest = fopen("test2.txt","w");
-//       int k=0;
-//        for (int i = 0; i < grayIm.rows; ++i)
-//        {
-//            fprintf(ftest,"\n");
-//          for (int j = 0; j < grayIm.cols; ++j)
-//              fprintf(ftest,"%f", grayImg[k++]);
-//        }
-//fclose(ftest);
+        FILE *ftest;
+                ftest = fopen("test2.txt","w");
+                //uchar *data =grayIm.data;
+       k=0;
+        for (int i = 0; i < grayIm.rows; ++i)
+        {
+            fprintf(ftest,"\n");
+          for (int j = 0; j < grayIm.cols; ++j)
+          {
+              int bin =grayImg[k++]>127;
+              fprintf(ftest,"%d", bin);
+          }
+        }
+fclose(ftest);
 
         featParams param;
         pathParam resPath;
@@ -63,6 +67,7 @@ int main(int argc, char *argv[])
 //        /* calling dsift function of vl_feat library*/
 
         denseSift feat = get_vl_phow(param,grayImg,grayIm.rows,grayIm.cols);
+        printf(" In main %d %d\n",feat.descrs.rows,feat.descrs.cols);
 
 //normalize sift is due
 
@@ -78,7 +83,7 @@ int main(int argc, char *argv[])
 
         /* reading GMM file from Matlab*/
         GMMTemp GMM = readGMM(resPath.gmmPath);
-        printf("\nGMM attributes \n%d %d",GMM.D,GMM.G);
+        printf("\nGMM attributes %d %d\n",GMM.D,GMM.G);
         //FILE *ftest;
        // ftest = fopen("test.txt","w");
        /* for (int iter=0;iter<GMM.G;iter++)
@@ -98,24 +103,25 @@ int main(int argc, char *argv[])
 
 
         /* calling vl_fisher function of vl_feat library to encode the SIFT vectors */
-        float const *fv = get_vl_fisher_encode(feat,GMM,PCAModel);
+        Mat FV = get_vl_fisher_encode(feat,GMM,PCAModel);
 //        Mat FV = Mat::zeros(1,param.featDim,DataType<float>::type);
 //        FV.data = fv;
 
 //         read embedding matrix and CCA matrix */
 
-       float  *W =readAttributeEmb(resPath.attsPath);
+       Mat  W =readAttributeEmb(resPath.attsPath);
         //Mat embW = Mat::zeros(param.featDim,param.numAtts,DataType<float>::type);
         //embW.data =W;
+       printf("\n%d %d\n",W.rows,W.cols);
 
-        CCATemp cca = readCCA(resPath.ccaPath);
+        CCATemp CCA = readCCA(resPath.ccaPath);
         //Mat CCA = Mat::zeros(param.featDim,param.numAtts,DataType<float>::type);
 
         //CCA.data = cca;
 
 
 //        /* multiply fv,embedding matrix,cca matrix like atts = (fv*W')*CCA' */
-//        Mat atts = (FV * embW.t()) * CCA.t();
+        //Mat atts = (FV * W.t()) * CCA.Wx.t();
 //        /* take l2 norm */
 
 //        /* read a lexicon file precomputed */
