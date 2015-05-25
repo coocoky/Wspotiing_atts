@@ -43,24 +43,26 @@ int main(int argc, char *argv[])
           for (int j = 0; j < grayIm.cols; ++j)
             grayImg[k++]= grayIm.at<unsigned char>(i, j);
 
-        FILE *ftest;
-                ftest = fopen("test2.txt","w");
-                //uchar *data =grayIm.data;
-       k=0;
-        for (int i = 0; i < grayIm.rows; ++i)
-        {
-            fprintf(ftest,"\n");
-          for (int j = 0; j < grayIm.cols; ++j)
-          {
-              int bin =grayImg[k++]>127;
-              fprintf(ftest,"%d", bin);
-          }
-        }
-fclose(ftest);
+//        FILE *ftest;
+//                ftest = fopen("test2.txt","w");
+//                //uchar *data =grayIm.data;
+//       k=0;
+//        for (int i = 0; i < grayIm.rows; ++i)
+//        {
+//            fprintf(ftest,"\n");
+//          for (int j = 0; j < grayIm.cols; ++j)
+//          {
+//              int bin =grayImg[k++]>127;
+//              fprintf(ftest,"%d", bin);
+//          }
+//        }
+//fclose(ftest);
 
-        featParams param;
+        featParams param =set_feat_option();
         pathParam resPath;
-        param.featDim = 2*(param.PCADIM+2)*param.numSpatialX*param.numSpatialY*param.G;
+
+
+        //int featDim;
         //prepare_opts(param,resPath);
         printf("aqui");
 
@@ -77,33 +79,35 @@ fclose(ftest);
         resPath.attsPath ="attModels.bin";
         resPath.ccaPath="CCA.bin";
         /* reading PCA file from matlab*/
-        pcaTemp PCAModel = readPCA(resPath.pcaPath);
+        //pcaTemp PCAModel = readPCA(resPath.pcaPath);
 
-        printf("PCA attributes \n%d %d\n",PCAModel.dim,PCAModel.num);
+       // printf("PCA attributes \n%d %d\n",PCAModel.dim,PCAModel.num);
 
         /* reading GMM file from Matlab*/
         GMMTemp GMM = readGMM(resPath.gmmPath);
         printf("\nGMM attributes %d %d\n",GMM.D,GMM.G);
-        //FILE *ftest;
-       // ftest = fopen("test.txt","w");
-       /* for (int iter=0;iter<GMM.G;iter++)
-        fprintf(ftest,"%f\n",GMM.we[iter]);
-        fclose(ftest);*/
+        FILE *ftest;
+        ftest = fopen("test.txt","w");
+      for (int iter=0;iter<GMM.G;iter++)
+        fprintf(ftest,"%f \n",GMM.we.at<float>(0,iter));
+       // fclose(ftest);
 
-      /*  for(int iter =0;iter<GMM.G;iter++)
-        {
-            for(int iter1=0;iter1<GMM.D;iter1++)
-            {
-                fprintf(ftest,"%f ",GMM.mu[iter*GMM.D+iter1]);
-            }
-        fprintf(ftest,"\n");
-        }
+//        for(int iter =0;iter<GMM.G;iter++)
+//        {
+//            fprintf(ftest,"\n");
+//            for(int iter1=0;iter1<GMM.D;iter1++)
+//            {
+//                fprintf(ftest,"%f ",GMM.mu.at<float>(iter,iter1));
+//            }
 
-        fclose(ftest);*/
+//        }
+
+        fclose(ftest);
 
 
         /* calling vl_fisher function of vl_feat library to encode the SIFT vectors */
-        Mat FV = get_vl_fisher_encode(feat,GMM,PCAModel);
+        //Mat FV = get_vl_fisher_encode(feat,GMM,PCAModel);
+        //printf("%d %d\n",FV.rows,FV.cols);
 //        Mat FV = Mat::zeros(1,param.featDim,DataType<float>::type);
 //        FV.data = fv;
 
@@ -119,9 +123,11 @@ fclose(ftest);
 
         //CCA.data = cca;
 
-
+        //W =W.colRange(0,FV.rows);
+        //printf("\n%d %d %d %d\n",FV.rows,FV.cols,W.rows,W.cols);
 //        /* multiply fv,embedding matrix,cca matrix like atts = (fv*W')*CCA' */
-        //Mat atts = (FV * W.t()) * CCA.Wx.t();
+        //Mat atts = FV; //* CCA.Wx;
+        //atts =CCA.Wx *atts;
 //        /* take l2 norm */
 
 //        /* read a lexicon file precomputed */

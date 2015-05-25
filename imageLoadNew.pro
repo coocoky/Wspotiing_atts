@@ -16,7 +16,8 @@ SOURCES += main.cpp\
         mainwindow.cpp \
     prep_options.cpp \
     callFisher.cpp \
-    io.cpp
+    io.cpp \
+    feature_option.cpp
 
 HEADERS  += mainwindow.h \
     feature_option.h \

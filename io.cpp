@@ -5,8 +5,25 @@
 Mat ConvertToMat(float *vec,int row, int col)
 {
      Mat retmat = Mat(row,col,CV_32FC1,vec);
+     FILE *ft = fopen("testGMM.txt","w");
+//     for (int iter=0;iter<col;iter++)
+//       fprintf(ft,"%f %f\n ",retmat.at<float>(0,iter),vec[iter]);
+//     fclose(ft);
+     //free(buffer);
+         //printf("%d %d\n",row,col);
+         //printf("%u %f\n",vec,vec[0]);
      return retmat;
 }
+float *convert2Vec(Mat data )
+{
+   float *buffer = (float*)malloc(sizeof(float)*data.rows*data.cols);
+    int k=0;
+   for (int i = 0; i < data.rows; ++i)
+     for (int j = 0; j < data.cols; ++j)
+       buffer[k++]= data.at<float>(i, j);
+   return buffer;
+}
+
 pcaTemp readPCA(char *fname)
 {
     pcaTemp PCA;
@@ -47,6 +64,11 @@ GMMTemp readGMM(char *fname)
     float *buffer = (float*)malloc(sizeof(float)*GMM.G);
     int success = fread(buffer, sizeof(float), GMM.G,fid);
     GMM.we = ConvertToMat(buffer,1,GMM.G);
+   // printf("%u %f\n",buffer,buffer[0]);
+//    FILE *ft = fopen("testGMM.txt","w");
+//    for (int iter=0;iter<GMM.G;iter++)
+//      fprintf(ft,"%f %f\n ",buffer[iter],GMM.we.at<float>(0,iter));//,buffer[iter]);
+//    fclose(ft);
     free(buffer);
      buffer = (float*)malloc(sizeof(float)*GMM.G*GMM.D);
     success = fread(buffer, sizeof(float), GMM.G*GMM.D,fid);
@@ -58,7 +80,7 @@ GMMTemp readGMM(char *fname)
     GMM.sigma = ConvertToMat(buffer,GMM.G,GMM.D);
     free(buffer);
 
-    fclose(fid);
+//    fclose(fid);
 
     return GMM;
 

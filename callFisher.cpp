@@ -85,18 +85,21 @@ Mat get_vl_fisher_encode(denseSift feat,GMMTemp G,pcaTemp pca)
    //Mat pcaMean,pcaVec;
     printf("row %d col %d\n pca rows %d pca cols%d",feat.descrs.rows,feat.descrs.cols,pca.mean.rows,pca.mean.cols);
     printf("\n eigVec %d %d",pca.eigvec.rows,pca.eigvec.cols);
+    Mat descrs = Mat(feat.numFrames,feat.descrSize,CV_32FC1);
+    for(int i=0;i<feat.numFrames;i++)
+        descrs.row(i)=feat.descrs.row(i)-pca.mean;
     //Mat descrs = feat.descrs-pca.mean;
-    Mat descrs=pca.eigvec*feat.descrs.t();
-
+    descrs=pca.eigvec*feat.descrs.t();
+     printf("\n eigVec %d %d",descrs.rows,descrs.cols);
     // convert to float //
 
 /* calling vl_feat library finction to encode */
 //    vl_fisher_encode
 //     (enc, VL_TYPE_FLOAT,
-//     G.mu, G.D, G.G,
-//     G.sigma,
-//     G.we,
-//     feat.descrs, feat.numFrames,
+//     convert2Vec(G.mu), G.D, G.G,
+//     convert2Vec(G.sigma),
+//     convert2Vec(G.we),
+//     convert2Vec(feat.descrs), feat.numFrames,
 //     VL_FISHER_FLAG_IMPROVED
 //     ) ;
    Mat encodeFv =ConvertToMat(enc,dim,1);

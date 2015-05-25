@@ -6,15 +6,15 @@
 #include <opencv2/highgui/highgui.hpp>
 
 typedef struct{
-    const int  SIFTDIM = 128;
-    const int useXY = 0;
-    const int PCADIM = 64;
-    const int numSpatialX = 6;
-    const int numSpatialY = 2;
-    const int G = 16;
-    const int scale[6] ={2,4,6,8,10,12};
-    const int step = 3;
-    const int numScale =6;
+     int  SIFTDIM ;//= 128;
+     int useXY ;//= 0;
+     int PCADIM ;//= 64;
+     int numSpatialX;// = 6;
+     int numSpatialY ;//= 2;
+     int G ;//= 16;
+     int scale[6];// ={2,4,6,8,10,12};
+     int step ;//= 3;
+     int numScale;// =6;
     int featDim;
 } featParams;
 
@@ -29,3 +29,4 @@ typedef struct{
 }pathParam;
 
 
+featParams set_feat_option();
