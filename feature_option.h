@@ -5,7 +5,7 @@
 #include <opencv2/opencv.hpp>
 #include <opencv2/highgui/highgui.hpp>
 
-typedef struct{
+typedef struct featParams{
      int  SIFTDIM ;//= 128;
      int useXY ;//= 0;
      int PCADIM ;//= 64;
@@ -16,6 +16,20 @@ typedef struct{
      int step ;//= 3;
      int numScale;// =6;
     int featDim;
+    featParams()
+    {SIFTDIM = 128;
+        useXY = 0;
+        PCADIM = 64;
+        numSpatialX = 6;
+        numSpatialY = 2;
+        G = 16;
+       // param.scale ;//{2,4,6,8,10,12};
+        for (int i=1;i<6;i++)
+            scale[i-1]=2*i;
+        step = 3;
+        numScale =6;
+        featDim = 2*(PCADIM+2)*numSpatialX*numSpatialY*G;
+    }
 } featParams;
 
 typedef struct{

@@ -1,6 +1,6 @@
 #include"feature_option.h"
 
-featParams set_feat_option()
+void SetParams()
 {
     featParams param;
     param.SIFTDIM = 128;

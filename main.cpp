@@ -58,7 +58,7 @@ int main(int argc, char *argv[])
 //        }
 //fclose(ftest);
 
-        featParams param =set_feat_option();
+        featParams param =featParams();
         pathParam resPath;
 
 
