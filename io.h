@@ -55,5 +55,5 @@ pcaTemp readPCA(char*);
 GMMTemp readGMM(char*);
 CCATemp readCCA(char *);
 Mat readAttributeEmb(char *);
-Mat ConvertToMat(float*vec, int row, int col);
-void convert2Vec(Mat data,float *vec );
+Mat ConvertToMat(void*vec, int row, int col,int type);
+void convert2Vec(Mat data,float *vec);

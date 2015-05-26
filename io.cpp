@@ -2,27 +2,54 @@
 #include<stdio.h>
 #include<malloc.h>
 
-Mat ConvertToMat(float *vec,int row, int col)
+Mat ConvertToMat(void *vec, int row, int col, int type)
 {
-     Mat retmat = Mat(row,col,CV_32FC1);
-    // FILE *ft = fopen("testGMM.txt","w");
-//     for (int iter=0;iter<col;iter++)
-//       fprintf(ft,"%f %f\n ",retmat.at<float>(0,iter),vec[iter]);
-//     fclose(ft);
-     //free(buffer);
-         //printf("%d %d\n",row,col);
-         //printf("%u %f\n",vec,vec[0]);
-     int k=0;
-     for (int i = 0; i < row; ++i)
-         for(int j=0;j<col;j++)
-     {
-         //printf("%f",vec[i]);
 
-          //for (int j = 0; j < data.cols; ++j)
-            //buffer[k++]= data.at<float>(i, j);
-         retmat.at<float>(i,j)=vec[k++];
-     }
-     return retmat;
+    if (type ==CV_32FC1)
+    {
+        float *data = (float*)vec;
+        Mat retmat = Mat(row,col,CV_32FC1);
+        int k=0;
+        for (int i = 0; i < row; ++i)
+        {
+            for(int j=0;j<col;j++)
+            {
+                //printf("%f",vec[i]);
+
+                //for (int j = 0; j < data.cols; ++j)
+                //buffer[k++]= data.at<float>(i, j);
+                retmat.at<float>(i,j)=data[k++];
+            }
+        }
+        return retmat;
+    }
+    else
+    {
+        int k=0;
+        double *data = (double *)vec;
+        Mat retmat = Mat(row,col,CV_64FC1);
+        for (int i = 0; i < row; ++i)
+        {
+            for(int j=0;j<col;j++)
+            {
+                //printf("%f",vec[i]);
+
+                //for (int j = 0; j < data.cols; ++j)
+                //buffer[k++]= data.at<float>(i, j);
+                retmat.at<double>(i,j)=data[k++];
+            }
+            return retmat;
+        }
+    }
+    // FILE *ft = fopen("testGMM.txt","w");
+    //     for (int iter=0;iter<col;iter++)
+    //       fprintf(ft,"%f %f\n ",retmat.at<float>(0,iter),vec[iter]);
+    //     fclose(ft);
+    //free(buffer);
+    //printf("%d %d\n",row,col);
+    //printf("%u %f\n",vec,vec[0]);
+    //int k=0;
+
 }
 void convert2Vec(Mat data, float *vec)
 {
@@ -49,12 +76,12 @@ pcaTemp readPCA(char *fname)
 
 
     int result = fread(buffer, sizeof(float), PCA.num*PCA.dim,fid);
-    PCA.eigvec=ConvertToMat(buffer,PCA.num,PCA.dim);
+    PCA.eigvec=ConvertToMat(buffer,PCA.num,PCA.dim,CV_32FC1);
     //PCA.eigvec = buffer;
     free(buffer);
     buffer = (float*)malloc(sizeof(float)*PCA.dim);
    result = fread(buffer, sizeof(float), PCA.dim,fid);
-    PCA.mean = ConvertToMat(buffer,1,PCA.dim);//fread(fid, [D,1], '*single');
+    PCA.mean = ConvertToMat(buffer,1,PCA.dim,CV_32FC1);//fread(fid, [D,1], '*single');
     free(buffer);
     FILE *ftest;
     ftest = fopen("testPCA.txt","w");
@@ -81,7 +108,7 @@ GMMTemp readGMM(char *fname)
     //printf("Inside Read GMM %d\n",a);
     float *buffer = (float*)malloc(sizeof(float)*GMM.G);
     int success = fread(buffer, sizeof(float), GMM.G,fid);
-    GMM.we = ConvertToMat(buffer,1,GMM.G);
+    GMM.we = ConvertToMat(buffer,1,GMM.G,CV_32FC1);
 
     printf("%u %f\n",buffer,buffer[0]);
     printf("%u\n",GMM.we.data);
@@ -92,13 +119,13 @@ GMMTemp readGMM(char *fname)
     free(buffer);
      buffer = (float*)malloc(sizeof(float)*GMM.G*GMM.D);
     success = fread(buffer, sizeof(float), GMM.G*GMM.D,fid);
-    GMM.mu = ConvertToMat(buffer,GMM.G,GMM.D);
+    GMM.mu = ConvertToMat(buffer,GMM.G,GMM.D,CV_32FC1);
 
     free(buffer);
     buffer = (float*)malloc(sizeof(float)*GMM.G*GMM.D);
     success = fread(buffer, sizeof(float), GMM.G*GMM.D,fid);
 
-    GMM.sigma = ConvertToMat(buffer,GMM.G,GMM.D);
+    GMM.sigma = ConvertToMat(buffer,GMM.G,GMM.D,CV_32FC1);
 
     free(buffer);
     FILE *ft = fopen("testGMM.txt","w");
@@ -136,7 +163,7 @@ Mat readAttributeEmb(char *fname)
 
      fread(emb, sizeof(float), N*D,fid);
      //Mat embMat =Mat(N,D,CV_32FC1,emb);
-     Mat embMat =ConvertToMat(emb,N,D);
+     Mat embMat =ConvertToMat(emb,N,D,CV_32FC1);
      free(emb);
     return embMat;
 }
@@ -155,19 +182,19 @@ Mat readAttributeEmb(char *fname)
 
     fread(buffer, sizeof(float), N*D,fid);
 
-    CCA.Wx =ConvertToMat(buffer,N,D);
+    CCA.Wx =ConvertToMat(buffer,N,D,CV_32FC1);
     free(buffer);
     buffer =(float*)malloc(sizeof(float)*N*D);
     fread(buffer, sizeof(float), N*D,fid);
-    CCA.wy =ConvertToMat(buffer,N,D);
+    CCA.wy =ConvertToMat(buffer,N,D,CV_32FC1);
     free(buffer);
     buffer = (float*) malloc(sizeof(float)*N*1);
     fread(buffer, sizeof(float), N*1,fid);
-    CCA.matts = ConvertToMat(buffer,N,1);
+    CCA.matts = ConvertToMat(buffer,N,1,CV_32FC1);
     free(buffer);
     buffer = (float*) malloc(sizeof(float)*N*1);
     fread(buffer, sizeof(float), N*1,fid);
-    CCA.mphocs = ConvertToMat(buffer,N,1);
+    CCA.mphocs = ConvertToMat(buffer,N,1,CV_32FC1);
     free(buffer);
     CCA.K =D;
     return CCA;

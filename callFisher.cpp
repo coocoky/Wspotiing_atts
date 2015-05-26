@@ -136,7 +136,7 @@ printf("changing to float vec");
      Descr, feat.numFrames,
      VL_FISHER_FLAG_IMPROVED
      ) ;
-   Mat encodeFv =ConvertToMat(enc,dim,1);
+   Mat encodeFv =ConvertToMat(enc,dim,1,CV_32FC1);
    printf("\nFV created %d %d",encodeFv.rows,encodeFv.cols);
     FILE *fw = fopen("testFV.txt","w");
     for (int i=0;i<dim;i++)
@@ -232,22 +232,22 @@ denseSift get_vl_phow(featParams param, float *grayIm, int imrow, int imcol)
                   if (phow_out.descrs.empty()==true)
                   {
                      // printf("here");
-                      phow_out.descrs = Mat(numFrames,descrSize,CV_32FC1,descriptor);
-                      phow_out.frames = Mat(numFrames,4,CV_64FC1,tempScale);
+                      phow_out.descrs = ConvertToMat(descriptor,numFrames,descrSize,CV_32FC1); //Mat(numFrames,descrSize,CV_32FC1,descriptor);
+                      phow_out.frames = ConvertToMat(tempScale,numFrames,4,CV_64FC1);//Mat(numFrames,4,CV_64FC1,tempScale);
                       phow_out.descrSize =descrSize;
                       phow_out.numFrames =numFrames;
                       free(tempScale);
                   }
                   else
                   {
-                     Mat dscale =Mat(numFrames,descrSize,CV_32FC1,descriptor);
+                     Mat dscale =ConvertToMat(descriptor,numFrames,descrSize,CV_32FC1);//Mat(numFrames,descrSize,CV_32FC1,descriptor);
 
-                     Mat fscale = Mat(numFrames,4,CV_64FC1,tempScale);
-                     // phow_out.descrs.push_back(dscale);
-                     vconcat(phow_out.descrs,dscale,phow_out.descrs);
+                     Mat fscale = ConvertToMat(tempScale,numFrames,4,CV_64FC1);//Mat(numFrames,4,CV_64FC1,tempScale);
+                      phow_out.descrs.push_back(dscale);
+                     //vconcat(phow_out.descrs,dscale,phow_out.descrs);
                       dscale.release();
-                      //phow_out.frames.push_back(fscale);
-                      vconcat(phow_out.frames,fscale,phow_out.frames);
+                      phow_out.frames.push_back(fscale);
+                      //vconcat(phow_out.frames,fscale,phow_out.frames);
                       phow_out.numFrames =phow_out.numFrames+numFrames;
                       fscale.release();
                       free(tempScale);
