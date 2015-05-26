@@ -24,14 +24,14 @@ Mat ConvertToMat(float *vec,int row, int col)
      }
      return retmat;
 }
-float *convert2Vec(Mat data )
+void convert2Vec(Mat data, float *vec)
 {
-   float *buffer = (float*)malloc(sizeof(float)*data.rows*data.cols);
+   //float *buffer = (float*)malloc(sizeof(float)*data.rows*data.cols);
     int k=0;
    for (int i = 0; i < data.rows; ++i)
      for (int j = 0; j < data.cols; ++j)
-       buffer[k++]= data.at<float>(i, j);
-   return buffer;
+       vec[k++]= data.at<float>(i, j);
+  // return buffer;
 }
 
 pcaTemp readPCA(char *fname)
@@ -63,6 +63,7 @@ pcaTemp readPCA(char *fname)
     fprintf(ftest,"%f \n",PCA.mean.at<float>(0,iter));
     fclose(ftest);
     //fclose(fid);
+
     return PCA;
 }
 

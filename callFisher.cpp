@@ -91,23 +91,61 @@ Mat get_vl_fisher_encode(denseSift feat,GMMTemp G,pcaTemp pca)
     //Mat descrs = feat.descrs-pca.mean;
     descrs=pca.eigvec*feat.descrs.t();
      printf("\n eigVec %d %d",descrs.rows,descrs.cols);
-    // convert to float //
+     printf("changing to float vec");
 
+     FILE *ftest =fopen("TestMu.txt","w");
+     for(int iter =0;iter<G.G;iter++)
+     {
+         fprintf(ftest,"\n");
+         for(int iter1=0;iter1<G.D;iter1++)
+         {
+             fprintf(ftest,"%f ",G.mu.at<float>(iter,iter1));
+         }
+
+     }
+     fclose(ftest);
+    // convert to float //
+    float *mu = (float*)malloc(G.mu.rows*G.mu.cols*sizeof(float));
+
+    float *Sigma = (float*)malloc(G.sigma.rows*G.sigma.cols*sizeof(float));
+    float *We = (float*)malloc(G.we.rows*G.we.cols*sizeof(float));
+    float *Descr = (float*)malloc(feat.descrs.rows*feat.descrs.cols*sizeof(float));
+printf("changing to float vec");
+    convert2Vec(G.mu,mu);
+    int k=0;
+    FILE *ftest1 =fopen("TestMuAfter.txt","w");
+    for(int iter =0;iter<G.G;iter++)
+    {
+        fprintf(ftest1,"\n");
+        for(int iter1=0;iter1<G.D;iter1++)
+        {
+            fprintf(ftest1,"%f ",mu[k++]);
+        }
+
+    }
+    fclose(ftest1);
+    convert2Vec(G.sigma,Sigma);
+    convert2Vec(G.we,We);
+    printf("\nchanged to float vec");
 /* calling vl_feat library finction to encode */
-//    vl_fisher_encode
-//     (enc, VL_TYPE_FLOAT,
-//     convert2Vec(G.mu), G.D, G.G,
-//     convert2Vec(G.sigma),
-//     convert2Vec(G.we),
-//     convert2Vec(feat.descrs), feat.numFrames,
-//     VL_FISHER_FLAG_IMPROVED
-//     ) ;
+    vl_fisher_encode
+     (enc, VL_TYPE_FLOAT,
+     mu, G.D, G.G,
+     Sigma,
+     We,
+     Descr, feat.numFrames,
+     VL_FISHER_FLAG_IMPROVED
+     ) ;
    Mat encodeFv =ConvertToMat(enc,dim,1);
-    FILE *fw = fopen("test.txt","w");
+   printf("\nFV created %d %d",encodeFv.rows,encodeFv.cols);
+    FILE *fw = fopen("testFV.txt","w");
     for (int i=0;i<dim;i++)
         fprintf(fw,"%f\n",enc[i]);
 
-
+free(mu);
+free(Sigma);
+free(We);
+free(Descr);
     return encodeFv;
 }
 

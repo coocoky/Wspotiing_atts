@@ -56,4 +56,4 @@ GMMTemp readGMM(char*);
 CCATemp readCCA(char *);
 Mat readAttributeEmb(char *);
 Mat ConvertToMat(float*vec, int row, int col);
-float *convert2Vec(Mat data );
+void convert2Vec(Mat data,float *vec );

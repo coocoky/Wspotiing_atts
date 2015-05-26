@@ -116,6 +116,10 @@ int main(int argc, char *argv[])
 
         /* calling vl_fisher function of vl_feat library to encode the SIFT vectors */
         Mat FV = get_vl_fisher_encode(feat,GMM,PCAModel);
+        FILE *ftest2 = fopen("testFV.txt","w");
+        for (int iter=0;iter<FV.rows;iter++)
+          fprintf(ftest2,"%f \n",FV.at<float>(0,iter));
+        fclose(ftest);
         //printf("%d %d\n",FV.rows,FV.cols);
        // Mat FV = Mat::zeros(1,param.featDim,DataType<float>::type);
 //        FV.data = fv;
