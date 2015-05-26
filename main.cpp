@@ -59,12 +59,12 @@ int main(int argc, char *argv[])
 //fclose(ftest);
 
         featParams param =featParams();
-        pathParam resPath;
+        pathParam resPath = pathParam();
 
 
         //int featDim;
         //prepare_opts(param,resPath);
-        printf("aqui");
+        //printf("aqui");
 
 //        /* calling dsift function of vl_feat library*/
 
@@ -73,11 +73,11 @@ int main(int argc, char *argv[])
 
 //normalize sift is due
 
-        resPath.lexPath ="lexicon.bin";
-        resPath.pcaPath ="PCA.bin";
-        resPath.gmmPath ="GMM.bin";
-        resPath.attsPath ="attModels.bin";
-        resPath.ccaPath="CCA.bin";
+//        resPath.lexPath ="lexicon.bin";
+//        resPath.pcaPath ="PCA.bin";
+//        resPath.gmmPath ="GMM.bin";
+//        resPath.attsPath ="attModels.bin";
+//        resPath.ccaPath="CCA.bin";
         /* reading PCA file from matlab*/
         pcaTemp PCAModel = readPCA(resPath.pcaPath);
         FILE *ftest1;

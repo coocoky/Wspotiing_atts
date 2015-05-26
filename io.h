@@ -50,10 +50,10 @@ typedef struct{
     Mat mphocs;
 }CCATemp;
 
-pcaTemp readPCA(char*);
+pcaTemp readPCA(const char*);
 
-GMMTemp readGMM(char*);
-CCATemp readCCA(char *);
-Mat readAttributeEmb(char *);
+GMMTemp readGMM(const char*);
+CCATemp readCCA(const char *);
+Mat readAttributeEmb(const char *);
 Mat ConvertToMat(void*vec, int row, int col,int type);
 void convert2Vec(Mat data,float *vec);

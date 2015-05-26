@@ -32,13 +32,21 @@ typedef struct featParams{
     }
 } featParams;
 
-typedef struct{
-    char *modelPath;
-    char *lexPath;
-    char *pcaPath;// ="PCA.bin";
-    char *gmmPath;// ="GMM.bin";
-    char *attsPath;// ="atts.bin";
-    char *ccaPath;//"CCA.bin"
+typedef struct pathParam{
+    const char *modelPath;
+    const char *lexPath;
+    const char *pcaPath;// ="PCA.bin";
+    const char *gmmPath;// ="GMM.bin";
+    const char *attsPath;// ="atts.bin";
+    const char *ccaPath;//"CCA.bin"
+    pathParam()
+    {
+        lexPath ="lexicon.bin";
+        pcaPath ="PCA.bin";
+        gmmPath ="GMM.bin";
+        attsPath ="attModels.bin";
+        ccaPath="CCA.bin";
+    }
 
 }pathParam;
 

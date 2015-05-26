@@ -10,11 +10,12 @@ extern "C" {
 #include<vl/imopv.h>
 #include<vl/fisher.h>
 }
+#define MAGNIF 6
 using namespace std;
 using namespace cv;
-typedef struct {
-    int magnif =6;
-}dsiftparam;
+//typedef struct {
+//    int magnif =6;
+//}dsiftparam;
 denseSift *get_vl_dsift(float *data,int scale,int step,int imrow,int imcol)
 {
 
@@ -158,7 +159,7 @@ denseSift get_vl_phow(featParams param, float *grayIm, int imrow, int imcol)
        // Mat descr,frames;
         denseSift phow_out ;
 
-        const int magnif =6;
+        //const int magnif =6;
         dsift = vl_dsift_new (imrow,imcol) ; // create a new dsift filter
         geom.numBinX = 4 ; //set to default geom
           geom.numBinY = 4 ;//set to default geom
@@ -166,7 +167,7 @@ denseSift get_vl_phow(featParams param, float *grayIm, int imrow, int imcol)
           vl_dsift_set_steps(dsift, param.step, param.step) ; //set the step size
           for (int i=1; i<param.numScale; i++)
               {
-                  float sigma = param.scale[i-1] / magnif ;
+                  float sigma = param.scale[i-1] / MAGNIF ;
                   float* img_vec_smooth = (float*)malloc(imrow*imcol*sizeof(float)); //to store smoothed image in each scale
                   vl_imsmooth_f(img_vec_smooth,imcol,grayIm,imcol,imrow,imcol, sigma,sigma) ; // smoothing the  image
 

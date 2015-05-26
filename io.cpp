@@ -61,7 +61,7 @@ void convert2Vec(Mat data, float *vec)
   // return buffer;
 }
 
-pcaTemp readPCA(char *fname)
+pcaTemp readPCA(const char *fname)
 {
     pcaTemp PCA;
     int a;
@@ -94,7 +94,7 @@ pcaTemp readPCA(char *fname)
     return PCA;
 }
 
-GMMTemp readGMM(char *fname)
+GMMTemp readGMM(const char *fname)
 {
     GMMTemp GMM;
     int G,Dim;
@@ -110,8 +110,8 @@ GMMTemp readGMM(char *fname)
     int success = fread(buffer, sizeof(float), GMM.G,fid);
     GMM.we = ConvertToMat(buffer,1,GMM.G,CV_32FC1);
 
-    printf("%u %f\n",buffer,buffer[0]);
-    printf("%u\n",GMM.we.data);
+    //printf("%u %f\n",buffer,buffer[0]);
+    //printf("%u\n",GMM.we.data);
 //    FILE *ft = fopen("testGMM.txt","w");
 //    for (int iter=0;iter<GMM.G;iter++)
 //      fprintf(ft,"%f %f\n ",buffer[iter],GMM.we.at<float>(0,iter));//,buffer[iter]);
@@ -149,7 +149,7 @@ GMMTemp readGMM(char *fname)
 
 }
 
-Mat readAttributeEmb(char *fname)
+Mat readAttributeEmb(const char *fname)
 {
     float *emb;
     int N,D;
@@ -168,7 +168,7 @@ Mat readAttributeEmb(char *fname)
     return embMat;
 }
 
- CCATemp readCCA(char *fname)
+ CCATemp readCCA(const char *fname)
 {
     CCATemp CCA;
     float *buffer ;
