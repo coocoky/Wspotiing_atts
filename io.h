@@ -12,12 +12,33 @@ int num;
 int dim;
 }pcaTemp;
 
-typedef struct{
+typedef struct GMMTemp{
     int G;
     int D;
     Mat we;
     Mat mu;
     Mat sigma;
+
+//    GMMTemp()
+//    {
+//    }
+
+//    GMMTemp(int nGaussian, int Dim)
+//    {
+//        G =nGaussian;
+//        D =Dim;
+//        //we = Mat(G,D)
+
+//    }
+
+//    GMMTemp(const GMMTemp &temp)
+//    {
+//        G =temp.G;
+//        D =temp.D;
+//        we=temp.we.clone();
+//        mu =temp.mu.clone();
+//        sigma =temp.sigma.clone();
+//    }
 
 }GMMTemp;
 

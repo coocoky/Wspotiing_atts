@@ -79,36 +79,45 @@ int main(int argc, char *argv[])
         resPath.attsPath ="attModels.bin";
         resPath.ccaPath="CCA.bin";
         /* reading PCA file from matlab*/
-        //pcaTemp PCAModel = readPCA(resPath.pcaPath);
+        pcaTemp PCAModel = readPCA(resPath.pcaPath);
+        FILE *ftest1;
+        ftest1 = fopen("testPCAMain.txt","w");
+       // GM1M->we = ConvertToMat(GMM->refWe,1,GMM->G);
+      for (int iter=0;iter<PCAModel.dim;iter++)
+        fprintf(ftest1,"%f \n",PCAModel.mean.at<float>(0,iter));
+        fclose(ftest1);
 
        // printf("PCA attributes \n%d %d\n",PCAModel.dim,PCAModel.num);
 
         /* reading GMM file from Matlab*/
-        GMMTemp GMM = readGMM(resPath.gmmPath);
+        //GMMTemp *GMM =new GMMTemp();
+        GMMTemp GMM =readGMM(resPath.gmmPath);
         printf("\nGMM attributes %d %d\n",GMM.D,GMM.G);
+        // printf("%u\n",GMM.we.data);
         FILE *ftest;
-        ftest = fopen("test.txt","w");
+        ftest = fopen("testGMMMain.txt","w");
+        //GMM->we = ConvertToMat(GMM->refWe,1,GMM->G);
       for (int iter=0;iter<GMM.G;iter++)
         fprintf(ftest,"%f \n",GMM.we.at<float>(0,iter));
-       // fclose(ftest);
+        //fclose(ftest);
 
-//        for(int iter =0;iter<GMM.G;iter++)
-//        {
-//            fprintf(ftest,"\n");
-//            for(int iter1=0;iter1<GMM.D;iter1++)
-//            {
-//                fprintf(ftest,"%f ",GMM.mu.at<float>(iter,iter1));
-//            }
+        for(int iter =0;iter<GMM.G;iter++)
+        {
+            fprintf(ftest,"\n");
+            for(int iter1=0;iter1<GMM.D;iter1++)
+            {
+                fprintf(ftest,"%f ",GMM.mu.at<float>(iter,iter1));
+            }
 
-//        }
+        }
 
         fclose(ftest);
 
 
         /* calling vl_fisher function of vl_feat library to encode the SIFT vectors */
-        //Mat FV = get_vl_fisher_encode(feat,GMM,PCAModel);
+        Mat FV = get_vl_fisher_encode(feat,GMM,PCAModel);
         //printf("%d %d\n",FV.rows,FV.cols);
-//        Mat FV = Mat::zeros(1,param.featDim,DataType<float>::type);
+       // Mat FV = Mat::zeros(1,param.featDim,DataType<float>::type);
 //        FV.data = fv;
 
 //         read embedding matrix and CCA matrix */
@@ -123,11 +132,11 @@ int main(int argc, char *argv[])
 
         //CCA.data = cca;
 
-        //W =W.colRange(0,FV.rows);
-        //printf("\n%d %d %d %d\n",FV.rows,FV.cols,W.rows,W.cols);
+        W =W.colRange(0,FV.rows);
+        printf("\nFV dim %d %d\n W dim %d %d\nCCA dim %d %d",FV.rows,FV.cols,W.rows,W.cols,CCA.Wx.rows,CCA.Wx.cols);
 //        /* multiply fv,embedding matrix,cca matrix like atts = (fv*W')*CCA' */
-        //Mat atts = FV; //* CCA.Wx;
-        //atts =CCA.Wx *atts;
+        Mat atts =W*FV;// FV* CCA.Wx;
+        atts =CCA.Wx.t() *atts;
 //        /* take l2 norm */
 
 //        /* read a lexicon file precomputed */
