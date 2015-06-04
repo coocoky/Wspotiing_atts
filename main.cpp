@@ -156,13 +156,30 @@ int main(int argc, char *argv[])
 //        FV.data = fv;
 
 //         read embedding matrix and CCA matrix */
+        int N,D;
 
-       Mat  W =readAttributeEmb(resPath.attsPath);
-        //Mat embW = Mat::zeros(param.featDim,param.numAtts,DataType<float>::type);
+       readMatDim(N,D,resPath.attsPath);
+        float *emb = (float*)malloc(sizeof(float)*N*D);
+        Mat W = Mat::zeros(N,D,DataType<float>::type);
+        readMatData(emb,resPath.attsPath);
+        W =ConvertToMat(emb,N,D,CV_32FC1);
         //embW.data =W;
-       //printf("\n%d %d\n",W.rows,W.cols);
+       printf("\n%d %d\n",W.rows,W.cols);
+       FILE *ftestemb = fopen("textEmb.txt","w");
 
-        CCATemp CCA = readCCA(resPath.ccaPath);
+       for(int iter =0;iter<W.rows;iter++)
+       {
+           fprintf(ftestemb,"\n");
+           for(int iter1=0;iter1<W.cols;iter1++)
+           {
+               fprintf(ftestemb,"%f ",W.at<float>(iter,iter1));
+           }
+
+       }
+
+       fclose(ftestemb);
+
+        CCATemp CCA = CCATemp(resPath.ccaPath);
         //Mat CCA = Mat::zeros(param.featDim,param.numAtts,DataType<float>::type);
 
         //CCA.data = cca;
@@ -171,15 +188,46 @@ int main(int argc, char *argv[])
         printf("\nFV dim %d %d\n W dim %d %d\nCCA dim %d %d",FV.rows,FV.cols,W.rows,W.cols,CCA.Wx.rows,CCA.Wx.cols);
 //        /* multiply fv,embedding matrix,cca matrix like atts = (fv*W')*CCA' */
         Mat atts =W*FV;// FV* CCA.Wx;
+        printf("\n%d %d\n",atts.rows,atts.cols);
         atts =CCA.Wx.t() *atts;
+        printf("\n%d %d\n",atts.rows,atts.cols);
 //        /* take l2 norm */
 
 //        /* read a lexicon file precomputed */
 //        float *lex = readLexicon(resPath.lexPath);
+        readMatDim(N,D,resPath.lexPath);
+         float *lex = (float*)malloc(sizeof(float)*N*D);
+         Mat lexmat = Mat::zeros(N,D,DataType<float>::type);
+         readMatData(lex,resPath.attsPath);
+         lexmat =ConvertToMat(lex,N,D,CV_32FC1);
+         //embW.data =W;
+        printf("\n%d %d\n",lexmat.rows,lexmat.cols);
+        FILE *ftestPhoc = fopen("textEmb.txt","w");
 
+        for(int iter =0;iter<lexmat.rows;iter++)
+        {
+            fprintf(ftestemb,"\n");
+            for(int iter1=0;iter1<lexmat.cols;iter1++)
+            {
+                fprintf(ftestemb,"%f ",lexmat.at<float>(iter,iter1));
+            }
+
+        }
+        fclose(ftestPhoc);
+printf("here before score");
 //        /* take a dot product in matlab lex*atts'*/
 
-//        Mat S = atts.t() * lex;
+        Mat S =  (lexmat*CCA.Wy)*atts;
+        printf("%d, %d",S.rows,S.cols);
+        FILE *fscore = fopen("score.txt","w");//printf()
+        for(int iter =0;iter<S.rows;iter++)
+
+        for(int iter1=0;iter1<S.cols;iter1++)
+
+            fprintf(fscore,"%f\n ",S.at<float>(iter,iter1));
+fclose(fscore);
+
+//release all mat and allocated data
 
         /* sort and get the result */
 

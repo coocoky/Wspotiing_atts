@@ -149,23 +149,44 @@ GMMTemp readGMM(const char *fname)
 
 }
 
-Mat readAttributeEmb(const char *fname)
+void readMatDim(int &N,int &D,const char *fname)
 {
-    float *emb;
-    int N,D;
-    FILE *fid = fopen(fname, "r");
+    //float *emb;
+    //int N,D;
+    FILE *fid = fopen(fname, "rb");
     fread(&N, sizeof(int),1 ,fid);
 
     fread(&D, sizeof(int),1 ,fid);
 
 
-    emb = (float*)malloc(sizeof(float)*N*D);
+//    emb = (float*)malloc(sizeof(float)*N*D);
+
+//     fread(emb, sizeof(float), N*D,fid);
+//     //Mat embMat =Mat(N,D,CV_32FC1,emb);
+//     Mat embMat =ConvertToMat(emb,N,D,CV_32FC1);
+//     free(emb);
+//    return embMat;
+    fclose(fid);
+}
+
+void readMatData(float *emb, const char *fname)
+{
+    //float *emb;
+    int N,D;
+    FILE *fid = fopen(fname, "rb");
+    //advance two bytes
+    fread(&N, sizeof(int),1 ,fid);
+
+    fread(&D, sizeof(int),1 ,fid);
+
+
+
 
      fread(emb, sizeof(float), N*D,fid);
-     //Mat embMat =Mat(N,D,CV_32FC1,emb);
-     Mat embMat =ConvertToMat(emb,N,D,CV_32FC1);
-     free(emb);
-    return embMat;
+     //embMat =Mat(N,D,CV_32FC1,emb);
+//     Mat embMat =ConvertToMat(emb,N,D,CV_32FC1);
+     //free(emb);
+//    return embMat;
 }
 
  CCATemp readCCA(const char *fname)
@@ -186,7 +207,7 @@ Mat readAttributeEmb(const char *fname)
     free(buffer);
     buffer =(float*)malloc(sizeof(float)*N*D);
     fread(buffer, sizeof(float), N*D,fid);
-    CCA.wy =ConvertToMat(buffer,N,D,CV_32FC1);
+    CCA.Wy =ConvertToMat(buffer,N,D,CV_32FC1);
     free(buffer);
     buffer = (float*) malloc(sizeof(float)*N*1);
     fread(buffer, sizeof(float), N*1,fid);

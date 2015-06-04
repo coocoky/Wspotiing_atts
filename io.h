@@ -128,18 +128,58 @@ typedef struct GMMTemp{
 
 }GMMTemp;
 
-typedef struct{
+typedef struct CCATemp{
     int K;
     Mat Wx;
-    Mat wy;
+    Mat Wy;
     Mat matts;
     Mat mphocs;
+    float *mattsraw;
+    float *mphocsraw;
+    float *Wxraw;
+    float *Wyraw;
+    const char *ccaFname;
+    CCATemp(){}
+    CCATemp(const char *fname)
+    {
+      int row; //temp
+        ccaFname=fname;
+        FILE *fid = fopen(fname, "rb");
+        fread(&row, sizeof(int),1 ,fid);
+
+        fread(&K, sizeof(int),1 ,fid);
+        Wxraw =(float*)malloc(sizeof(float)*row*K);
+
+        fread(Wxraw, sizeof(float), row*K,fid);
+
+        Wx =Mat(row,K,CV_32FC1,Wxraw);
+        Wyraw =(float*)malloc(sizeof(float)*row*K);
+
+        fread(Wyraw, sizeof(float), row*K,fid);
+
+        Wy =Mat(row,K,CV_32FC1,Wyraw);
+
+        mattsraw = (float*) malloc(sizeof(float)*row*1);
+        fread(mattsraw, sizeof(float), row*1,fid);
+        matts = Mat(row,1,CV_32FC1,mattsraw);
+        //free(buffer);
+        mphocsraw = (float*) malloc(sizeof(float)*row*1);
+        fread(mphocsraw, sizeof(float), row*1,fid);
+        mphocs = Mat(row,1,CV_32FC1,mphocsraw);
+
+
+    }
 }CCATemp;
 
 pcaTemp readPCA(const char*);
 
 GMMTemp readGMM(const char*);
 CCATemp readCCA(const char *);
-Mat readAttributeEmb(const char *);
+void readAttributeEmb(float *,const char *);
+void readAttributeEmbDim(int &N,int &D,const char *fname);
 Mat ConvertToMat(void*vec, int row, int col,int type);
 void convert2Vec(Mat data,float *vec);
+//void readPhocLex(Mat &lexMat,const char *);
+//void readPhocLexDim(int &N,int &D,const char *fname);
+void readMatData(float *,const char *);
+void readMatDim(int &N,int &D,const char *fname);
