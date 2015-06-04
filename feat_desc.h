@@ -22,6 +22,6 @@ typedef struct
     Mat frames;
 }denseSift;
 
-denseSift get_vl_phow(featParams, float*, int , int);
+void get_vl_phow(Mat&, Mat&, featParams, float*, int , int);
 denseSift *get_vl__dsift(float **data,int scale,int step);
-Mat get_vl_fisher_encode(denseSift,GMMTemp,pcaTemp);
+void get_vl_fisher_encode(Mat&, denseSift,GMMTemp,pcaTemp);

@@ -25,6 +25,8 @@ int main(int argc, char *argv[])
         }
       VL_PRINT ("Hello world!") ;
      cout << "start";
+
+
         Mat image,grayIm;
         image = imread("w3_4.jpg");   // Read the file
         cout << "image loaded";
@@ -40,8 +42,14 @@ int main(int argc, char *argv[])
         int k=0;
         float *grayImg=(float*)malloc(grayIm.rows*grayIm.cols*sizeof(float));
         for (int i = 0; i < grayIm.rows; ++i)
+        {
           for (int j = 0; j < grayIm.cols; ++j)
-            grayImg[k++]= grayIm.at<unsigned char>(i, j);
+          {
+            grayImg[k]= grayIm.at<unsigned char>(i, j);
+            grayImg[k]= grayImg[k]/255;
+            k++;
+          }
+        }
 
 //        FILE *ftest;
 //                ftest = fopen("test2.txt","w");
@@ -67,9 +75,24 @@ int main(int argc, char *argv[])
         //printf("aqui");
 
 //        /* calling dsift function of vl_feat library*/
+        denseSift featVec;
+        featVec.descrs =Mat::zeros(1,128,CV_32FC1);
+        featVec.frames = Mat::zeros(1,4,CV_64FC1);
 
-        denseSift feat = get_vl_phow(param,grayImg,grayIm.rows,grayIm.cols);
-        printf(" In main %d %d\n",feat.descrs.rows,feat.descrs.cols);
+        get_vl_phow(featVec.descrs,featVec.frames,param,grayImg,grayIm.rows,grayIm.cols);
+        featVec.descrSize = featVec.descrs.cols;
+        featVec.numFrames = featVec.descrs.rows;
+        printf(" In main %d %d\n",featVec.descrs.rows,featVec.descrs.cols);
+
+        FILE *fdes = fopen("descriptor.txt","w");
+        //FILE *ftest2 = fopen("testmatframe.txt","w");
+                         for (int i = 0; i <featVec.descrs.rows; ++i)
+                         {
+                             fprintf(fdes,"\n");
+                           for (int j = 0; j < featVec.descrs.cols; ++j)
+                             fprintf(fdes,"%f ",featVec.descrs.at<float>(i, j));
+                         }
+                         fclose(fdes);
 
 //normalize sift is due
 
@@ -79,19 +102,27 @@ int main(int argc, char *argv[])
 //        resPath.attsPath ="attModels.bin";
 //        resPath.ccaPath="CCA.bin";
         /* reading PCA file from matlab*/
-        pcaTemp PCAModel = readPCA(resPath.pcaPath);
+        pcaTemp PCAModel = pcaTemp(resPath.pcaPath);
         FILE *ftest1;
         ftest1 = fopen("testPCAMain.txt","w");
        // GM1M->we = ConvertToMat(GMM->refWe,1,GMM->G);
+        fprintf(ftest1,"means\n");
       for (int iter=0;iter<PCAModel.dim;iter++)
         fprintf(ftest1,"%f \n",PCAModel.mean.at<float>(0,iter));
+      fprintf(ftest1,"eigvec\n");
+      for (int iter=0;iter<PCAModel.num;iter++)
+      {
+          fprintf(ftest1,"\n");
+          for (int iter1=0;iter1<PCAModel.dim;iter1++)
+              fprintf(ftest1,"%f ",PCAModel.eigvec.at<float>(iter,iter1));
+      }
         fclose(ftest1);
 
-       // printf("PCA attributes \n%d %d\n",PCAModel.dim,PCAModel.num);
+        printf("PCA attributes \n%d %d\n",PCAModel.dim,PCAModel.num);
 
         /* reading GMM file from Matlab*/
         //GMMTemp *GMM =new GMMTemp();
-        GMMTemp GMM =readGMM(resPath.gmmPath);
+        GMMTemp GMM =GMMTemp(resPath.gmmPath);
         printf("\nGMM attributes %d %d\n",GMM.D,GMM.G);
         // printf("%u\n",GMM.we.data);
         FILE *ftest;
@@ -115,11 +146,11 @@ int main(int argc, char *argv[])
 
 
         /* calling vl_fisher function of vl_feat library to encode the SIFT vectors */
-        Mat FV = get_vl_fisher_encode(feat,GMM,PCAModel);
-        FILE *ftest2 = fopen("testFV.txt","w");
-        for (int iter=0;iter<FV.rows;iter++)
-          fprintf(ftest2,"%f \n",FV.at<float>(0,iter));
-        fclose(ftest);
+        Mat FV;
+        get_vl_fisher_encode(FV,featVec,GMM,PCAModel);
+       // Mat FV;
+        printf("in main");
+
         //printf("%d %d\n",FV.rows,FV.cols);
        // Mat FV = Mat::zeros(1,param.featDim,DataType<float>::type);
 //        FV.data = fv;
@@ -129,7 +160,7 @@ int main(int argc, char *argv[])
        Mat  W =readAttributeEmb(resPath.attsPath);
         //Mat embW = Mat::zeros(param.featDim,param.numAtts,DataType<float>::type);
         //embW.data =W;
-       printf("\n%d %d\n",W.rows,W.cols);
+       //printf("\n%d %d\n",W.rows,W.cols);
 
         CCATemp CCA = readCCA(resPath.ccaPath);
         //Mat CCA = Mat::zeros(param.featDim,param.numAtts,DataType<float>::type);

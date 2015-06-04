@@ -24,7 +24,7 @@ typedef struct featParams{
         numSpatialY = 2;
         G = 16;
        // param.scale ;//{2,4,6,8,10,12};
-        for (int i=1;i<6;i++)
+        for (int i=1;i<=6;i++)
             scale[i-1]=2*i;
         step = 3;
         numScale =6;

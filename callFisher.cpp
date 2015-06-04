@@ -67,12 +67,12 @@ denseSift *get_vl_dsift(float *data,int scale,int step,int imrow,int imcol)
 
 
 
-Mat get_vl_fisher_encode(denseSift feat,GMMTemp G,pcaTemp pca)
+void get_vl_fisher_encode(Mat &encmat,denseSift feat,GMMTemp G,pcaTemp pca)
 {
     //call factory function for vl_fisher_code
    int dim = 2*G.G * G.D;
-    float *enc = (float*)vl_malloc(sizeof(float) * 2 * G.G * G.D);
-    printf(" here %d",2 * G.G * G.D);
+    void *enc = vl_malloc(sizeof(float) * 2 * G.G * G.D);
+    printf(" here %d %d %d\n",G.G,G.D,2 * G.G * G.D);
 
 //    % Project into PCA space
 //    if opts.useXY
@@ -91,7 +91,7 @@ Mat get_vl_fisher_encode(denseSift feat,GMMTemp G,pcaTemp pca)
         descrs.row(i)=feat.descrs.row(i)-pca.mean;
     //Mat descrs = feat.descrs-pca.mean;
     descrs=pca.eigvec*feat.descrs.t();
-     printf("\n eigVec %d %d",descrs.rows,descrs.cols);
+     printf("\n eigVec %d %d %d",descrs.rows,descrs.cols,feat.numFrames);
      printf("changing to float vec");
 
      FILE *ftest =fopen("TestMu.txt","w");
@@ -110,9 +110,10 @@ Mat get_vl_fisher_encode(denseSift feat,GMMTemp G,pcaTemp pca)
 
     float *Sigma = (float*)malloc(G.sigma.rows*G.sigma.cols*sizeof(float));
     float *We = (float*)malloc(G.we.rows*G.we.cols*sizeof(float));
-    float *Descr = (float*)malloc(feat.descrs.rows*feat.descrs.cols*sizeof(float));
+    float *Descr = (float*)malloc(descrs.rows*descrs.cols*sizeof(float));
 printf("changing to float vec");
     convert2Vec(G.mu,mu);
+  printf("\nchanged to float vec");
     int k=0;
     FILE *ftest1 =fopen("TestMuAfter.txt","w");
     for(int iter =0;iter<G.G;iter++)
@@ -120,44 +121,64 @@ printf("changing to float vec");
         fprintf(ftest1,"\n");
         for(int iter1=0;iter1<G.D;iter1++)
         {
-            fprintf(ftest1,"%f ",mu[k++]);
+            //printf("%d\n",k);
+            fprintf(ftest1,"%f ",G.sigmaraw[k++]);
         }
 
     }
     fclose(ftest1);
+    printf("print complete");
+    convert2Vec(descrs,Descr);
+    k=0;
+    FILE *ftest2 =fopen("ConvertedDesc.txt","w");
+    for(int iter =0;iter<descrs.rows;iter++)
+    {
+        fprintf(ftest2,"\n");
+        for(int iter1=0;iter1<descrs.cols;iter1++)
+        {
+            //printf("%d\n",k);
+            fprintf(ftest2,"%f ",Descr[k++]);
+        }
+
+    }
+    fclose(ftest2);
+    printf("print complete");
     convert2Vec(G.sigma,Sigma);
     convert2Vec(G.we,We);
     printf("\nchanged to float vec");
-/* calling vl_feat library finction to encode */
+// calling vl_feat library finction to encode */
     vl_fisher_encode
      (enc, VL_TYPE_FLOAT,
-     mu, G.D, G.G,
+     mu, 64,192,
      Sigma,
      We,
      Descr, feat.numFrames,
      VL_FISHER_FLAG_IMPROVED
      ) ;
-   Mat encodeFv =ConvertToMat(enc,dim,1,CV_32FC1);
-   printf("\nFV created %d %d",encodeFv.rows,encodeFv.cols);
-    FILE *fw = fopen("testFV.txt","w");
-    for (int i=0;i<dim;i++)
-        fprintf(fw,"%f\n",enc[i]);
+    printf("After encode");
+    encmat =ConvertToMat(enc,dim,1,CV_32FC1);
+   //printf("\nFV created %d %d",encodeFv.rows,encodeFv.cols);
+//    FILE *fw = fopen("testFV.txt","w");
+//    for (int i=0;i<dim;i++)
+//        fprintf(fw,"%f\n",enc[i]);
 
-free(mu);
-free(Sigma);
-free(We);
-free(Descr);
-    return encodeFv;
+//free(mu);
+//free(Sigma);
+//free(We);
+    //free(Descr);
+   // Mat encodeFv;
+   printf("return");
+    //return encodeFv;
 }
 
-denseSift get_vl_phow(featParams param, float *grayIm, int imrow, int imcol)
+void get_vl_phow(Mat &desc, Mat &frames, featParams param, float *grayIm, int imrow, int imcol)
 
 {
 
         VlDsiftFilter *dsift ;
         VlDsiftDescriptorGeometry geom ;
        // Mat descr,frames;
-        denseSift phow_out ;
+        //denseSift phow_out ;
 
         //const int magnif =6;
         dsift = vl_dsift_new (imrow,imcol) ; // create a new dsift filter
@@ -165,25 +186,33 @@ denseSift get_vl_phow(featParams param, float *grayIm, int imrow, int imcol)
           geom.numBinY = 4 ;//set to default geom
           geom.numBinT = 8 ;//set to default geom
           vl_dsift_set_steps(dsift, param.step, param.step) ; //set the step size
-          for (int i=1; i<param.numScale; i++)
+          for (int i=0; i<param.numScale; i++)
               {
-                  float sigma = param.scale[i-1] / MAGNIF ;
+                  float sigma = param.scale[i] / MAGNIF ;
+                  int off = floor(1 + 3/2 * (12 - param.scale[i])) ;
+                 // printf("%d\n",param.scale[i]);
                   float* img_vec_smooth = (float*)malloc(imrow*imcol*sizeof(float)); //to store smoothed image in each scale
                   vl_imsmooth_f(img_vec_smooth,imcol,grayIm,imcol,imrow,imcol, sigma,sigma) ; // smoothing the  image
 
-                  float *descriptor; //temp descriptor for each scale
+                  const float *descriptor; //temp descriptor for each scale
                   VlDsiftKeypoint *framescale; //temp frames for each scale
                   int numFrames,descrSize;
-                  geom.binSizeX = param.scale[i-1] ;
-                  geom.binSizeY = param.scale [i-1];
+                  geom.binSizeX = param.scale[i] ;
+                  geom.binSizeY = param.scale [i];
                   vl_dsift_set_geometry(dsift, &geom) ;
                               //vl_dsift_set_steps(dsift, step, step) ;
                   numFrames = vl_dsift_get_keypoint_num (dsift) ;
                   descrSize = vl_dsift_get_descriptor_size(dsift) ;
-                  printf("%d %d %d \n",numFrames,descrSize,phow_out.descrs.rows);
+                  //printf("%d %d %d \n",numFrames,descrSize,phow_out.descrs.rows);
                   vl_dsift_process (dsift, img_vec_smooth) ;
-                  descriptor = (float*)vl_dsift_get_descriptors (dsift);
+                  descriptor = vl_dsift_get_descriptors (dsift);
                   framescale = (VlDsiftKeypoint *)vl_dsift_get_keypoints (dsift) ;
+                  vl_dsift_set_bounds(dsift,
+                                            VL_MAX(off, 0),
+                                            VL_MAX(off, 0),
+                                            imrow - 1,
+                                            imcol - 1);
+
                   //l=0;
 //                  FILE *ftest = fopen("testold.txt","w");
 //                  for (int i = 0; i < numFrames; ++i)
@@ -193,9 +222,22 @@ denseSift get_vl_phow(featParams param, float *grayIm, int imrow, int imcol)
 //                      fprintf(ftest,"%f %f %f %f ",framescale[i].x,framescale[i].y,framescale[i].s,framescale[i].norm);
 //                  }
 
+//                  FILE *fdes = fopen("descriptorinphow.txt","w");
+//                  int ll=0;
+//                  //FILE *ftest2 = fopen("testmatframe.txt","w");
+//                                   for (int i = 0; i <numFrames; ++i)
+//                                   {
+//                                       fprintf(fdes,"\n");
+//                                     for (int j = 0; j < descrSize; ++j)
+//                                       fprintf(fdes,"%f ",descriptor[ll++]);
+
+//                                   }
+//                                   fclose(fdes);
+
 //                  fclose(ftest);
                   double *tempScale =(double*)malloc(numFrames*4*sizeof(double));
                   int k=0;
+                 // return;
 //printf("check\n");
 //FILE *ftest1 = fopen("testoldscale.txt","w");
                   for(int ii=0;ii<numFrames;ii++)
@@ -203,7 +245,7 @@ denseSift get_vl_phow(featParams param, float *grayIm, int imrow, int imcol)
                      //printf("%d %d\n",(ii*4)+1,(ii+1)*4);
                       tempScale[k] =framescale[ii].x;
                       tempScale[k+1]=framescale[ii].y;
-                     tempScale[k+2]=param.scale[i-1];
+                     tempScale[k+2]=param.scale[i];
                       tempScale[k+3]=framescale[ii].norm;
                       //printf("%d %d %u %u\n",*tempScale,framescale[ii].x,tempScale,framescale);
                      // printf("%f %f %f \n",framescale[ii].x,tempScale[k],*(tempScale+k));
@@ -230,34 +272,46 @@ denseSift get_vl_phow(featParams param, float *grayIm, int imrow, int imcol)
 
 
 
-                  if (phow_out.descrs.empty()==true)
-                  {
+                 // if (phow_out.descrs.empty()==true)
+                  //{
                      // printf("here");
-                      phow_out.descrs = ConvertToMat(descriptor,numFrames,descrSize,CV_32FC1); //Mat(numFrames,descrSize,CV_32FC1,descriptor);
-                      phow_out.frames = ConvertToMat(tempScale,numFrames,4,CV_64FC1);//Mat(numFrames,4,CV_64FC1,tempScale);
-                      phow_out.descrSize =descrSize;
-                      phow_out.numFrames =numFrames;
-                      free(tempScale);
-                  }
-                  else
-                  {
-                     Mat dscale =ConvertToMat(descriptor,numFrames,descrSize,CV_32FC1);//Mat(numFrames,descrSize,CV_32FC1,descriptor);
+                      Mat dscale =Mat(numFrames,descrSize,CV_32FC1,(float*)descriptor);
 
-                     Mat fscale = ConvertToMat(tempScale,numFrames,4,CV_64FC1);//Mat(numFrames,4,CV_64FC1,tempScale);
-                      phow_out.descrs.push_back(dscale);
-                     //vconcat(phow_out.descrs,dscale,phow_out.descrs);
-                      dscale.release();
-                      phow_out.frames.push_back(fscale);
-                      //vconcat(phow_out.frames,fscale,phow_out.frames);
-                      phow_out.numFrames =phow_out.numFrames+numFrames;
-                      fscale.release();
+                      Mat fscale = Mat(numFrames,4,CV_64FC1,tempScale);
+                      desc.push_back(dscale);
+                      frames.push_back(fscale);
+                     // phow_out.descrs = ConvertToMat(descriptor,numFrames,descrSize,CV_32FC1); //Mat(numFrames,descrSize,CV_32FC1,descriptor);
+                     // phow_out.frames = ConvertToMat(tempScale,numFrames,4,CV_64FC1);//Mat(numFrames,4,CV_64FC1,tempScale);
+                     // phow_out.descrSize =descrSize;
+                     // phow_out.numFrames =numFrames;
                       free(tempScale);
+//                  }
+//                  else
+//                  {
+//                     Mat dscale =ConvertToMat(descriptor,numFrames,descrSize,CV_32FC1);//Mat(numFrames,descrSize,CV_32FC1,descriptor);
 
-                  }
+//                     Mat fscale = ConvertToMat(tempScale,numFrames,4,CV_64FC1);//Mat(numFrames,4,CV_64FC1,tempScale);
+//                      phow_out.descrs.push_back(dscale);
+//                     //vconcat(phow_out.descrs,dscale,phow_out.descrs);
+//                      dscale.release();
+//                      phow_out.frames.push_back(fscale);
+//                      //vconcat(phow_out.frames,fscale,phow_out.frames);
+//                      phow_out.numFrames =phow_out.numFrames+numFrames;
+//                      fscale.release();
+//                      free(tempScale);
+
+//                  }
 
                   //if()
 
-
+                  FILE *ftest2 = fopen("testmatframe.txt","w");
+                                   for (int i = 0; i <fscale.rows; ++i)
+                                   {
+                                       fprintf(ftest2,"\n");
+                                     for (int j = 0; j < fscale.cols; ++j)
+                                       fprintf(ftest2,"%f ",fscale.at<double>(i, j));
+                                   }
+                                   fclose(ftest2);
 //printf("check\n");
 
 
@@ -278,8 +332,16 @@ denseSift get_vl_phow(featParams param, float *grayIm, int imrow, int imcol)
                   free(img_vec_smooth);
                   //break;
           }
+//          FILE *ftest2 = fopen("testmatframe.txt","w");
+//                           for (int i = 0; i <phow_out.frames.rows; ++i)
+//                           {
+//                               fprintf(ftest2,"\n");
+//                             for (int j = 0; j < phow_out.frames.cols; ++j)
+//                               fprintf(ftest2,"%f ",phow_out.frames.at<double>(i, j));
+//                           }
+//                           fclose(ftest2);
 
-return phow_out;
+//return phow_out;
 }
 //    printf("suman");
 //    denseSift *t;
